@@ -1,4 +1,4 @@
-INSERT INTO department (department_name)
+INSERT INTO departments (department_name)
 VALUES 
 ("Engineering"),
 ("Finance"),
@@ -6,40 +6,52 @@ VALUES
 ("Legal"),
 ("Marketing"),
 ("Operations"),
-("Sales")
+("Sales");
 
 
-INSERT INTO role (role_title, role_salary, department_id)
+INSERT INTO roles (role_title, role_salary, is_manager)
 VALUES 
-("Lead Engineer", 75000, 1),
-("Software Engineer", 75000, 1),
-("Salesperson", 115000, 7),
-("Account Manager", 80000, 7),
-("Accountant", 90000, 2),
-("Lawyer", 150000, 4),
-("Product Manager", 80000, 5),
-("Legal Team Assistant", 55000, 4),
-("HR Manager", 100000, 3),
-("Production Leading Hand", 70000, 6)
-("Machine Operator", 38000, 6)
-("Accounts Payable Clerk", 45000, 2),
-("Accounts Receivable Clerk", 45000, 2),
+("Lead Engineer", 75000, true),
+("Software Engineer", 75000, false),
+("Salesperson", 115000, false),
+("Business Manager", 95000, true),
+("Finance Manager", 85000, true),
+("Accountant", 90000, false),
+("Lawyer", 150000, true),
+("Product Manager", 80000, true),
+("Legal Team Assistant", 55000, false),
+("HR Manager", 100000, true),
+("Production Leading Hand", 70000, true),
+("Machine Operator", 38000, false),
+("Accounts Payable Clerk", 45000, false),
+("Accounts Receivable Clerk", 45000, false);
 
 
-INSERT INTO employee (first_name, last_name, role_id, manager_id)
+INSERT INTO managers (first_name, last_name)
 VALUES 
-("Mike", "Chan", ),
-("Abby", "Road", ),
-("Ashley", "Garcia", ),
-("Rachel", "Maddow", ),
-("Brian", "Williams", ),
-("Nicole", "Wallace", ),
-("Chris", "Hayes", ),
-("Sanjaya", "Singh", ),
-("Tran", "Ngyuen", ),
-("Leah", "Muscat", ),
-("Bianca", "Vanderlinde", ),
-("Joanna", "Haslam", ),
-("Ramesh", "Weerasinghe", ),
-("Mary", "Kim", ),
-("Josh", "Kumari", )
+("Bill", "Gates"),
+("Steve", "Jobs"),
+("Nick", "Molnar"),
+("Robert", "Kalin"),
+("Larry", "Page"),
+("Elon", "Musk"),
+("Richard", "Branson");
+
+
+INSERT INTO employees (first_name, last_name)
+VALUES 
+("Mike", "Chan"),
+("Abby", "Road"),
+("Ashley", "Garcia"),
+("Rachel", "Maddow"),
+("Brian", "Williams"),
+("Nicole", "Wallace"),
+("Chris", "Hayes"),
+("Sanjaya", "Singh"),
+("Tran", "Ngyuen"),
+("Leah", "Muscat"),
+("Bianca", "Vanderlinde"),
+("Joanna", "Haslam"),
+("Ramesh", "Weerasinghe"),
+("Mary", "Kim"),
+("Josh", "Kumari");

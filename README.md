@@ -44,10 +44,14 @@ THEN I am prompted to select an employee to update and their new role and this i
 
 
 ## Installation
-The application will be invoked by typing the following command in the terminal to install 'Inquirer':
+The application will be invoked by typing the following command in the terminal to install required modules':
 
 ```bash
 npm i inquirer
+npm i express
+npm i mysql
+npm i mysql2
+npm start
 ```
 
 Then, typing the following command in the terminal to initiate the prompts to collate the information required in the database:
@@ -56,9 +60,6 @@ Then, typing the following command in the terminal to initiate the prompts to co
 node server.js
 ```
 
-How to install MySQL (2?)
-
-
 ## Usage
 The user will be presented with a series of prompts about their Team Members which s/he will answer until the information is complete for each Employee.  A message will be seen in the terminal saying "Successfully created HTML webpage".  The user will then open the index.html file in their browser to see their team profile page.
 
@@ -66,3 +67,4 @@ The user will be presented with a series of prompts about their Team Members whi
 MIT
 
 ## GitHub Url
+https://github.com/rachel-brain/cms-employee-tracker
