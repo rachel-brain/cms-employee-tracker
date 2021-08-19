@@ -3,6 +3,7 @@ const inquirer = require('inquirer');
 const fs = require('fs');
 const express = require('express');
 const mysql = require('mysql2');
+const Connection = require('mysql2/typings/mysql/lib/Connection');
 
 const PORT = process.env.PORT || 3001;
 const app = express();
@@ -15,156 +16,300 @@ app.use(express.json());
 
 const database = [];
 
-// Array of questions for user input
-const askQuestions = () => {
-    inquirer.prompt([{
-            type: 'checkbox',
-            message: 'What would you like to do?',
-            name: 'table',
-            choices: ['Add a Department', 'Add a Role', 'Add an Employee', 'Remove an Employee', 'Update an Employee role', 'Update an Employee Manager', 'View ALL Employees', 'View Employees by Department', 'View Employees by Manager', 'Quit']
-        },
-        {
-            type: 'checkbox',
-            message: 'What is the name of the Department?',
-            name: 'department',
-            choices: ['Engineering', 'Finance', 'HR', 'Legal', 'Marketing', 'Operations', 'Sales'],
-            when: (answers) => answers.table === 'Add a Department'
-        },
-        {
+// First question for selection by user
+const mainMenu = async () => {
+    const {
+        selection
+    } = await inquirer.prompt([{
+        type: 'checkbox',
+        message: 'What would you like to do?',
+        name: 'selection',
+        choices: [{
+                name: 'Add a Department',
+                value: 'ADD_DEPT'
+            },
+            {
+                name: 'Add a Role',
+                value: 'ADD_ROLE'
+            },
+            {
+                name: 'Add an Employee',
+                value: 'ADD_EMPLOYEE'
+            },
+            {
+                name: 'Remove an Employee',
+                value: 'REMOVE_EMPLOYEE'
+            },
+            {
+                name: 'Update an Employee role',
+                value: 'UPDATE_ROLE'
+            },
+            {
+                name: 'Update a Manager',
+                value: 'UPDATE_MANAGER'
+            },
+            {
+                name: 'View ALL Employees',
+                value: 'VIEW_EMPLOYEES'
+            },
+            {
+                name: 'View Employees by Department',
+                value: 'VIEW_BYDEPT'
+            },
+            {
+                name: 'View Employees by Manager',
+                value: 'VIEW_BYMGR'
+            },
+            {
+                name: 'Exit',
+                value: 'EXIT'
+            }
+        ]
+    }]);
+
+    switch (selection) {
+        case 'ADD_DEPT': {
+            await addDepartment();
+            break;
+        }
+        case 'ADD_ROLE': {
+            await addRole();
+            break;
+        }
+        case 'ADD_EMPLOYEE': {
+            await addEmployee();
+            break;
+        }
+        case 'REMOVE_EMPLOYEE': {
+            await removeEmployee();
+            break;
+        }
+        case 'UPDATE_ROLE': {
+            await updateRole();
+            break;
+        }
+        case 'UPDATE_MANAGER': {
+            await updateManager();
+            break;
+        }
+        case 'VIEW_EMPLOYEES': {
+            await viewEmployees();
+            break;
+        }
+        case 'VIEW_BYDEPT': {
+            await viewByDepartment();
+            break;
+        }
+        case 'VIEW_BYMGR': {
+            await viewByManager();
+            break;
+        }
+        default: {
+            process.exit();
+        }
+    }
+    mainMenu();
+}
+
+
+// Individual functions to add data to database in response to arrays of questions for each selction
+// Add Department
+const addDepartmentToDB = async (department) => {
+    const result = await Connection.promise().query("INSERT INTO departments set ?", department);
+    console.log(result);
+}
+
+const addDepartment = async () => {
+    const department = await inquirer.prompt([{
+        type: 'checkbox',
+        message: 'What is the name of the Department?',
+        name: 'department',
+        choices: ['Engineering', 'Finance', 'HR', 'Legal', 'Marketing', 'Operations', 'Sales']
+    }]);
+    await addDepartmentToDB(department);
+}
+
+// Add Role
+const addRoleToDB = async (role) => {
+    const result = await connection.promise().query("INSERT INTO roles set ?", role);
+    console.log(result);
+}
+
+const addRole = async () => {
+    const role = await inquirer.prompt([{
             type: 'input',
             message: 'What is the name of the role?',
-            name: 'role',
-            when: (answers) => answers.table === 'Add a Role'
+            name: 'rolename'
         },
         {
             type: 'input',
             message: 'What is the salary of the role?',
-            name: 'salary',
-            when: (answers) => answers.role !== null
+            name: 'salary'
         },
         {
             type: 'input',
             message: 'Which department does the role belong to?',
-            name: 'departmentrole',
-            when: (answers) => answers.salary > 0
-        },
-        {
+            name: 'departmentrole'
+        }
+    ]);
+    await addRoleToDB(role);
+}
+
+// Add Employee
+const addEmployeeToDB = async (employee) => {
+    const result = await connection.promise().query("INSERT INTO employees set ?", employee);
+    console.log(result);
+}
+
+const addEmployee = async () => {
+    const employee = await inquirer.prompt([{
             type: 'input',
             message: 'What is the first name of the Employee?',
-            name: 'firstname',
-            when: (answers) => answers.table === 'Add an Employee'
+            name: 'firstname'
         },
         {
             type: 'input',
             message: 'What is the last name of the Employee?',
-            name: 'lastname',
-            when: (answers) => answers.firstname !== null
+            name: 'lastname'
         },
         {
             type: 'input',
             message: 'What is the role of the Employee?',
-            name: 'employeerole',
-            when: (answers) => answers.lastname !== null
+            name: 'employeerole'
         },
         {
             type: 'input',
             message: 'Who does this Employee report to?',
-            name: 'employeemanager',
-            when: (answers) => answers.employeerole !== null
-        },
-        {
+            name: 'employeemanager'
+        }
+    ]);
+    await addEmployeeToDB(employee);
+}
+
+// Remove Employee - CHECK THIS FUNCTION - DIFFERENT FOR DELETE???
+const removeEmployeefromDB = async (employee) => {
+    const result = await connection.promise().query("DELETE FROM employees set ?", employee);
+    console.log(result);
+}
+
+const removeEmployee = async () => {
+    const employee = await inquirer.prompt([{
             type: 'input',
             message: 'Which Employee would you like to remove?',
-            name: 'remove',
-            when: (answers) => answers.table === 'Remove an Employee'
+            name: 'remove'
         },
         {
             type: 'confirm',
             message: 'Are you sure you want to remove this Employee?',
-            name: 'confirmremoval',
-            when: (answers) => answers.remove === true
-        },
-        {
+            name: 'confirmremoval'
+        }
+    ]);
+    await removeEmployeefromDB(employee);
+}
+
+// Update Role
+const updateRoleToDB = async (role) => {
+    const result = await connection.promise().query("UPDATE INTO roles set ?", role);
+    console.log(result);
+}
+
+const updateRole = async () => {
+    const role = await inquirer.prompt([{
             type: 'input',
             message: 'Which Employee would you like to update?',
-            name: 'employeeupdate',
-            when: (answers) => answers.table === 'Update an Employee'
+            name: 'employeeupdate'
         },
         {
             type: 'input',
             message: 'What is the updated role of this Employee?',
-            name: 'roleupdate',
-            when: (answers) => answers.employeeupdate !== null
-        },
-        {
+            name: 'roleupdate'
+        }
+    ]);
+    await updateRoleToDB(role);
+}
+
+// Update Manager
+const updateManagerToDB = async (role) => {
+    const result = await connection.promise().query("UPDATE INTO employees set ?", employee);
+    console.log(result);
+}
+
+const updateManager = async () => {
+    const employee = await inquirer.prompt([{
             type: 'input',
             message: 'Which Manager would you like to update?',
-            name: 'managerupdate',
-            when: (answers) => answers.table === 'Update an Employee Manager'
+            name: 'managerupdate'
         },
         {
             type: 'input',
             message: 'What is the first name of the updated Manager?',
-            name: 'managerfirstname',
-            when: (answers) => answers.managerupdate !== null
+            name: 'managerfirstname'
         },
         {
             type: 'input',
             message: 'What is the last name of the updated Manager?',
-            name: 'managerlastname',
-            when: (answers) => answers.managerfirstname !== null
-        },
-        {
-            type: 'confirm',
-            message: 'Are you sure you want to view ALL Employees?',
-            name: 'confirmviewemployees',
-            when: (answers) => answers.table === 'View ALL Employees'
-        },
-        {
-            type: 'confirm',
-            message: 'Are you sure you want to view Employees by Department?',
-            name: 'confirmviewemployeesbydept',
-            when: (answers) => answers.table === 'View Employees by Department'
-        },
-        {
-            type: 'confirm',
-            message: 'Are you sure you want to view Employees by Manager?',
-            name: 'confirmviewemployeesbymgr',
-            when: (answers) => answers.table === 'View Employees by Manager'
-        },
-        {
-            type: 'confirm',
-            message: 'Are you sure you want to quit?',
-            name: 'confirmquit',
-            when: (answers) => answers.table === 'Quit'
+            name: 'managerlastname'
         }
-    ]).then(answers => {
-        database.push(answers);
-    })
-};
+    ]);
+    await updateManagerToDB(employee);
+}
 
-// Create a function to initialize app
-// function init() {
-//     inquirer.prompt(askQuestions)
-//         .then((answers) => {
-//             console.log(answers);
-// const fileName = 'README.md';
-// const readmePageContent = generateMarkdown(answers);
+// View ALL Employees
+const viewEmployeesInDB = async (role) => {
+    const result = await connection.promise().query("SELECT * FROM employees set ?", employee);
+    console.log(result);
+}
 
-// Create a function to write README file
-// fs.writeFile(fileName, readmePageContent, (err) => {
-//     err ? console.log(err) : console.log('Successfully created README')
-// });
-// console.log(chosenLicense);
-//         });
+const viewEmployees = async () => {
+    const employee = await inquirer.prompt([{
+        type: 'confirm',
+        message: 'Are you sure you want to view ALL Employees?',
+        name: 'confirmviewemployees'
+    }]);
+    await viewEmployeesInDB(employee);
+}
+
+// View Employees by Department
+const viewEmployeesByDept = async (employee) => {
+    const result = await connection.promise().query("SELECT * FROM employees set ?", employee);
+    console.log(result);
+}
+
+const viewByDepartment = async () => {
+    const employee = await inquirer.prompt([{
+        type: 'confirm',
+        message: 'Are you sure you want to view Employees by Department?',
+        name: 'confirmviewemployeesbydept'
+    }]);
+    await viewEmployeesByDept(employee);
+}
+
+// View Employees by Manager
+const viewEmployeesByMgr = async (employee) => {
+    const result = await connection.promise().query("SELECT * FROM employees set ?", employee);
+    console.log(result);
+}
+
+const viewByManager = async () => {
+    const employee = await inquirer.prompt([{
+        type: 'confirm',
+        message: 'Are you sure you want to view Employees by Department?',
+        name: 'confirmviewemployeesbydept'
+    }]);
+    await viewEmployeesByMgr(employee);
+}
+
+
+// Exit?
+// {
+//     type: 'confirm',
+//     message: 'Are you sure you want to quit?',
+//     name: 'confirmquit'
 // }
 
+
 // Call the function to initialize app
-// init();
-
-askQuestions();
-
-
+// askQuestions();
 
 
 // Connect to database

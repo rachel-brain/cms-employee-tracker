@@ -27,17 +27,6 @@ VALUES
 ("Accounts Receivable Clerk", 45000, false);
 
 
-INSERT INTO managers (first_name, last_name)
-VALUES 
-("Bill", "Gates"),
-("Steve", "Jobs"),
-("Nick", "Molnar"),
-("Robert", "Kalin"),
-("Larry", "Page"),
-("Elon", "Musk"),
-("Richard", "Branson");
-
-
 INSERT INTO employees (first_name, last_name)
 VALUES 
 ("Mike", "Chan"),
@@ -45,7 +34,10 @@ VALUES
 ("Ashley", "Garcia"),
 ("Rachel", "Maddow"),
 ("Brian", "Williams"),
+("Steve", "Jobs"),
+("Elon", "Musk"),
 ("Nicole", "Wallace"),
+("Richard", "Branson");
 ("Chris", "Hayes"),
 ("Sanjaya", "Singh"),
 ("Tran", "Ngyuen"),
