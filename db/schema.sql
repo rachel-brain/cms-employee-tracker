@@ -8,11 +8,13 @@ CREATE TABLE departments (
   department_name VARCHAR(30) NOT NULL
 );
 
+-- remove department name?
 CREATE TABLE roles (
   id INT AUTO_INCREMENT PRIMARY KEY,
   role_title VARCHAR(30) NOT NULL,
   role_salary DECIMAL(8,2),
   is_manager BOOLEAN,
+  department_name VARCHAR(30) NOT NULL,
   department_id INT,
   FOREIGN KEY (department_id)
   REFERENCES departments(id)
@@ -23,6 +25,7 @@ CREATE TABLE employees (
   id INT AUTO_INCREMENT PRIMARY KEY,
   first_name VARCHAR(30) NOT NULL,
   last_name VARCHAR(30) NOT NULL,
+  role_title VARCHAR(30) NOT NULL,
   role_id INT,
   FOREIGN KEY (role_id)
   REFERENCES roles(id)

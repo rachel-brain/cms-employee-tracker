@@ -44,7 +44,7 @@ THEN I am prompted to select an employee to update and their new role and this i
 
 
 ## Installation
-The application will be invoked by typing the following command in the terminal to install required modules':
+The application will be invoked by typing the following commands in the terminal to install required modules':
 
 ```bash
 npm i inquirer

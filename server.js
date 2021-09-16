@@ -3,7 +3,14 @@ const inquirer = require('inquirer');
 const fs = require('fs');
 const express = require('express');
 const mysql = require('mysql2');
-const Connection = require('mysql2/typings/mysql/lib/Connection');
+
+// Connect to database
+const connection = mysql.createConnection({
+    host: 'localhost',
+    user: 'root',
+    password: '89K2BXgFgE',
+    database: 'companyemployees_db'
+});
 
 const PORT = process.env.PORT || 3001;
 const app = express();
@@ -67,7 +74,10 @@ const mainMenu = async () => {
         ]
     }]);
 
-    switch (selection) {
+    console.log(selection[0]);
+
+    // Switch to set of questions relevant to the answer of the selection by the user
+    switch (selection[0]) {
         case 'ADD_DEPT': {
             await addDepartment();
             break;
@@ -108,51 +118,76 @@ const mainMenu = async () => {
             process.exit();
         }
     }
-    mainMenu();
 }
 
+mainMenu();
 
-// Individual functions to add data to database in response to arrays of questions for each selction
+// Individual functions to add data to database in response to questions asked, dependent on answer to first selection
 // Add Department
 const addDepartmentToDB = async (department) => {
-    const result = await Connection.promise().query("INSERT INTO departments set ?", department);
-    console.log(result);
+    const result = await connection.promise().query("INSERT INTO departments set ?", department);
+    console.log(department);
 }
 
 const addDepartment = async () => {
     const department = await inquirer.prompt([{
-        type: 'checkbox',
+        type: 'input',
         message: 'What is the name of the Department?',
-        name: 'department',
-        choices: ['Engineering', 'Finance', 'HR', 'Legal', 'Marketing', 'Operations', 'Sales']
+        name: 'department_name'
     }]);
     await addDepartmentToDB(department);
+    mainMenu();
 }
 
 // Add Role
 const addRoleToDB = async (role) => {
+    // console.log("a role");
+    //const deptID = await connection.promise().query("SELECT departments.id FROM departments LEFT JOIN roles ON ? = departments.department_name", role.department_name);
+    // SELECT departments, roles FROM departments LEFT JOIN roles ON Finance = departments.department_name
+    // SELECT departments FROM departments LEFT JOIN roles ON Finance = departments.department_name
+
+    console.log(role);
     const result = await connection.promise().query("INSERT INTO roles set ?", role);
-    console.log(result);
 }
 
 const addRole = async () => {
+    const departments = await connection.promise().query("SELECT * FROM departments");
+    const departmentOptions = departments[0].map(department => ({
+        name: department.department_name,
+        value: department.id
+    }));
+    // remove some of these tests departments!
+    console.log(departmentOptions)
     const role = await inquirer.prompt([{
             type: 'input',
             message: 'What is the name of the role?',
-            name: 'rolename'
+            name: 'role_title'
         },
         {
             type: 'input',
             message: 'What is the salary of the role?',
-            name: 'salary'
+            name: 'role_salary'
         },
         {
-            type: 'input',
+            type: 'confirm',
+            message: 'Is this role a manager?',
+            name: 'is_manager'
+        },
+        {
+            type: 'list',
+            // change to ids! test
             message: 'Which department does the role belong to?',
-            name: 'departmentrole'
+            name: 'department_id',
+            choices: departmentOptions
         }
     ]);
+    // console.log(role);
+    // console.log(role.role_title);
+    // console.log(role.role_salary);
+    // console.log(role.department_name);
+
     await addRoleToDB(role);
+    mainMenu();
 }
 
 // Add Employee
@@ -165,17 +200,17 @@ const addEmployee = async () => {
     const employee = await inquirer.prompt([{
             type: 'input',
             message: 'What is the first name of the Employee?',
-            name: 'firstname'
+            name: 'first_name'
         },
         {
             type: 'input',
             message: 'What is the last name of the Employee?',
-            name: 'lastname'
+            name: 'last_name'
         },
         {
             type: 'input',
             message: 'What is the role of the Employee?',
-            name: 'employeerole'
+            name: 'role_title'
         },
         {
             type: 'input',
@@ -184,6 +219,7 @@ const addEmployee = async () => {
         }
     ]);
     await addEmployeeToDB(employee);
+    mainMenu();
 }
 
 // Remove Employee - CHECK THIS FUNCTION - DIFFERENT FOR DELETE???
@@ -205,6 +241,7 @@ const removeEmployee = async () => {
         }
     ]);
     await removeEmployeefromDB(employee);
+    mainMenu();
 }
 
 // Update Role
@@ -226,6 +263,7 @@ const updateRole = async () => {
         }
     ]);
     await updateRoleToDB(role);
+    mainMenu();
 }
 
 // Update Manager
@@ -252,6 +290,7 @@ const updateManager = async () => {
         }
     ]);
     await updateManagerToDB(employee);
+    mainMenu();
 }
 
 // View ALL Employees
@@ -267,11 +306,12 @@ const viewEmployees = async () => {
         name: 'confirmviewemployees'
     }]);
     await viewEmployeesInDB(employee);
+    mainMenu();
 }
 
 // View Employees by Department
 const viewEmployeesByDept = async (employee) => {
-    const result = await connection.promise().query("SELECT * FROM employees set ?", employee);
+    const result = await connection.promise().query("SELECT * FROM employees set ?", employee.department);
     console.log(result);
 }
 
@@ -282,11 +322,12 @@ const viewByDepartment = async () => {
         name: 'confirmviewemployeesbydept'
     }]);
     await viewEmployeesByDept(employee);
+    mainMenu();
 }
 
 // View Employees by Manager
 const viewEmployeesByMgr = async (employee) => {
-    const result = await connection.promise().query("SELECT * FROM employees set ?", employee);
+    const result = await connection.promise().query("SELECT * FROM employees set ?", employee.manager);
     console.log(result);
 }
 
@@ -297,29 +338,5 @@ const viewByManager = async () => {
         name: 'confirmviewemployeesbydept'
     }]);
     await viewEmployeesByMgr(employee);
+    mainMenu();
 }
-
-
-// Exit?
-// {
-//     type: 'confirm',
-//     message: 'Are you sure you want to quit?',
-//     name: 'confirmquit'
-// }
-
-
-// Call the function to initialize app
-// askQuestions();
-
-
-// Connect to database
-const db = mysql.createConnection({
-        host: 'localhost',
-        // MySQL Username
-        user: 'root',
-        // TODO: Add MySQL Password
-        password: '89K2BXgFgE',
-        database: 'companyemployees_db'
-    },
-    console.log(`Connected to the companyemployees_db database.`)
-);
