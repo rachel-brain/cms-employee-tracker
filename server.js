@@ -120,8 +120,6 @@ const mainMenu = async () => {
     }
 }
 
-mainMenu();
-
 // Individual functions to add data to database in response to questions asked, dependent on answer to first selection
 // Add Department
 const addDepartmentToDB = async (department) => {
@@ -142,7 +140,7 @@ const addDepartment = async () => {
 // Add Role
 const addRoleToDB = async (role) => {
     // console.log("a role");
-    //const deptID = await connection.promise().query("SELECT departments.id FROM departments LEFT JOIN roles ON ? = departments.department_name", role.department_name);
+    // const deptID = await connection.promise().query("SELECT departments.id FROM departments LEFT JOIN roles ON ? = departments.department_name", role.department_name);
     // SELECT departments, roles FROM departments LEFT JOIN roles ON Finance = departments.department_name
     // SELECT departments FROM departments LEFT JOIN roles ON Finance = departments.department_name
 
@@ -181,10 +179,6 @@ const addRole = async () => {
             choices: departmentOptions
         }
     ]);
-    // console.log(role);
-    // console.log(role.role_title);
-    // console.log(role.role_salary);
-    // console.log(role.department_name);
 
     await addRoleToDB(role);
     mainMenu();
@@ -340,3 +334,19 @@ const viewByManager = async () => {
     await viewEmployeesByMgr(employee);
     mainMenu();
 }
+
+// Initialize interface
+const init = async () => {
+    try {
+        console.log('\n', "----------------------------------------", '\n');
+        console.log('\n', "       Welcome to Employee Tracker!     ", '\n');
+        console.log('\n', "----------------------------------------", '\n');
+
+        mainMenu();
+
+    } catch (err) {
+        console.log(err);
+    }
+};
+
+init();

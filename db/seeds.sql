@@ -1,12 +1,12 @@
-INSERT INTO departments (department_name, id)
+INSERT INTO departments (department_name)
 VALUES 
-("Engineering", 1),
-("Finance", 2),
-("HR", 3),
-("Legal", 4),
-("Marketing", 5),
-("Operations", 6),
-("Sales", 7);
+("Engineering"),
+("Finance"),
+("HR"),
+("Legal"),
+("Marketing"),
+("Operations"),
+("Sales");
 
 
 INSERT INTO roles (role_title, role_salary, is_manager, department_id)
@@ -27,7 +27,7 @@ VALUES
 ("Accounts Receivable Clerk", 45000, false, 2);
 
 
-INSERT INTO employees (first_name, last_name)
+INSERT INTO employees (first_name, last_name, role_id, manager_id)
 VALUES 
 ("Mike", "Chan"),
 ("Abby", "Road"),
@@ -37,7 +37,7 @@ VALUES
 ("Steve", "Jobs"),
 ("Elon", "Musk"),
 ("Nicole", "Wallace"),
-("Richard", "Branson");
+("Richard", "Branson"),
 ("Chris", "Hayes"),
 ("Sanjaya", "Singh"),
 ("Tran", "Ngyuen"),

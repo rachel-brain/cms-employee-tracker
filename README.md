@@ -5,10 +5,7 @@ A CLI application to manage a company's employee database, using Node.js, Inquir
 
 
 ## Description
-
-    
-## Motivation
-
+A command-line interface (CLI) application built from scratch to manage a company's employee database, using Node.js, Inquirer, and MySQL.  This application will allow non-developers to easily view and interact with information stored in this employee database. An interface such as this is called a **content management system (CMS)** and these are very important in businesses and organisations for data integrity.
 
 ## User Story
 
@@ -18,33 +15,13 @@ I WANT to be able to view and manage the departments, roles and employees in my 
 SO THAT I can organize and plan my business
 ```
 
-## Acceptance Criteria
-
-```md
-GIVEN a command-line application that accepts user input
-WHEN I start the application
-THEN I am presented with the following options: view all departments, view all roles, view all employees, add a department, add a role, add an employee, and update an employee role
-WHEN I choose to view all departments
-THEN I am presented with a formatted table showing department names and department ids
-WHEN I choose to view all roles
-THEN I am presented with the job title, role id, the department that role belongs to, and the salary for that role
-WHEN I choose to view all employees
-THEN I am presented with a formatted table showing employee data, including employee ids, first names, last names, job titles, departments, salaries, and managers that the employees report to
-WHEN I choose to add a department
-THEN I am prompted to enter the name of the department and that department is added to the database
-WHEN I choose to add a role
-THEN I am prompted to enter the name, salary, and department for the role and that role is added to the database
-WHEN I choose to add an employee
-THEN I am prompted to enter the employee’s first name, last name, role, and manager, and that employee is added to the database
-WHEN I choose to update an employee role
-THEN I am prompted to select an employee to update and their new role and this information is updated in the database 
-```
-
 ## Video Instructions
 
 
+
+
 ## Installation
-The application will be invoked by typing the following commands in the terminal to install required modules':
+Initially, the application will be set up by typing the following commands in the terminal to install required modules:
 
 ```bash
 npm i inquirer
@@ -61,10 +38,24 @@ node server.js
 ```
 
 ## Usage
-The user will be presented with a series of prompts about their Team Members which s/he will answer until the information is complete for each Employee.  A message will be seen in the terminal saying "Successfully created HTML webpage".  The user will then open the index.html file in their browser to see their team profile page.
+1. Once the Employee Tracker is running, the user will be presented with a series of questions about the next task they want to perform, including:
+- Add a Department
+- Add a Role
+- Add an Employee
+- Update an Employee role
+- Update a Manager
+- View ALL Employees
+- View Employees by Department
+- Remove an Employee
+- Exit
+2. When the user chooses one of these options, they are presented with a number of questions relating to that option.
+3. When these questions are answered, the data is added to the database and the user is presented with the original list of task options again.
+4. This process is continued until the user chooses the Exit option & they exit the Tracker.
 
-## License
-MIT
-
-## GitHub Url
+## GitHub Repository Url
 https://github.com/rachel-brain/cms-employee-tracker
+
+## Contact
+https://github.com/rachel-brain
+
+rachel.brain@internode.on.net
