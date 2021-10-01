@@ -28,13 +28,13 @@ npm i inquirer
 npm i express
 npm i mysql
 npm i mysql2
-npm start
+npm install console.table --save
 ```
 
 Then, typing the following command in the terminal to initiate the prompts to collate the information required in the database:
 
 ```bash
-node server.js
+npm start
 ```
 
 ## Usage
@@ -45,6 +45,7 @@ node server.js
 - Update an Employee role
 - Update a Manager
 - View ALL Employees
+- View all Departments
 - View Employees by Department
 - Remove an Employee
 - Exit

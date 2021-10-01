@@ -4,6 +4,8 @@ const fs = require('fs');
 const express = require('express');
 const mysql = require('mysql2');
 
+const cTable = require('console.table');
+
 // Connect to database
 const connection = mysql.createConnection({
     host: 'localhost',
@@ -60,6 +62,10 @@ const mainMenu = async () => {
                 value: 'VIEW_EMPLOYEES'
             },
             {
+                name: 'View ALL Departments',
+                value: 'VIEW_DEPARTMENTS'
+            },
+            {
                 name: 'View Employees by Department',
                 value: 'VIEW_BYDEPT'
             },
@@ -106,6 +112,10 @@ const mainMenu = async () => {
             await viewEmployees();
             break;
         }
+        case 'VIEW_DEPARTMENTS': {
+            await viewDepartments();
+            break;
+        }
         case 'VIEW_BYDEPT': {
             await viewByDepartment();
             break;
@@ -139,11 +149,6 @@ const addDepartment = async () => {
 
 // Add Role
 const addRoleToDB = async (role) => {
-    // console.log("a role");
-    // const deptID = await connection.promise().query("SELECT departments.id FROM departments LEFT JOIN roles ON ? = departments.department_name", role.department_name);
-    // SELECT departments, roles FROM departments LEFT JOIN roles ON Finance = departments.department_name
-    // SELECT departments FROM departments LEFT JOIN roles ON Finance = departments.department_name
-
     console.log(role);
     const result = await connection.promise().query("INSERT INTO roles set ?", role);
 }
@@ -155,7 +160,8 @@ const addRole = async () => {
         value: department.id
     }));
     // remove some of these tests departments!
-    console.log(departmentOptions)
+    console.table(departmentOptions);
+
     const role = await inquirer.prompt([{
             type: 'input',
             message: 'What is the name of the role?',
@@ -173,7 +179,6 @@ const addRole = async () => {
         },
         {
             type: 'list',
-            // change to ids! test
             message: 'Which department does the role belong to?',
             name: 'department_id',
             choices: departmentOptions
@@ -187,7 +192,7 @@ const addRole = async () => {
 // Add Employee
 const addEmployeeToDB = async (employee) => {
     const result = await connection.promise().query("INSERT INTO employees set ?", employee);
-    console.log(result);
+    console.log(employee);
 }
 
 const addEmployee = async () => {
@@ -201,29 +206,38 @@ const addEmployee = async () => {
             message: 'What is the last name of the Employee?',
             name: 'last_name'
         },
-        {
-            type: 'input',
-            message: 'What is the role of the Employee?',
-            name: 'role_title'
-        },
-        {
-            type: 'input',
-            message: 'Who does this Employee report to?',
-            name: 'employeemanager'
-        }
+        // {
+        //     type: 'input',
+        //     message: 'What is the role of the Employee?',
+        //     name: 'role_title'
+        // },
+        // {
+        //     type: 'input',
+        //     message: 'Who does this Employee report to?',
+        //     name: 'employeemanager'
+        // }
     ]);
     await addEmployeeToDB(employee);
     mainMenu();
 }
 
-// Remove Employee - CHECK THIS FUNCTION - DIFFERENT FOR DELETE???
-const removeEmployeefromDB = async (employee) => {
-    const result = await connection.promise().query("DELETE FROM employees set ?", employee);
-    console.log(result);
+// Remove Employee
+const removeEmployeefromDB = async (employee_id) => {
+    // const employees = await connection.promise().query("DELETE FROM employees WHERE employee_id ?", employee_id);
+
+    const employeeOptions = employees[0].map(employee => ({
+        name: employee.first_name + ' ' + employee.last_name,
+        value: employee.id
+    }));
+
+    // console.log(employeeOptions);
+    // console.table(employeeOptions);
+    // console.log(employee_id + "has been deleted");
 }
 
 const removeEmployee = async () => {
-    const employee = await inquirer.prompt([{
+    console.table(employeeOptions);
+    const employee_id = await inquirer.prompt([{
             type: 'input',
             message: 'Which Employee would you like to remove?',
             name: 'remove'
@@ -234,7 +248,7 @@ const removeEmployee = async () => {
             name: 'confirmremoval'
         }
     ]);
-    await removeEmployeefromDB(employee);
+    await removeEmployeefromDB(employee_id);
     mainMenu();
 }
 
@@ -261,18 +275,13 @@ const updateRole = async () => {
 }
 
 // Update Manager
-const updateManagerToDB = async (role) => {
-    const result = await connection.promise().query("UPDATE INTO employees set ?", employee);
+const updateManagerToDB = async (employee) => {
+    const result = await connection.promise().query("UPDATE * INTO employees set ?", employee);
     console.log(result);
 }
 
 const updateManager = async () => {
     const employee = await inquirer.prompt([{
-            type: 'input',
-            message: 'Which Manager would you like to update?',
-            name: 'managerupdate'
-        },
-        {
             type: 'input',
             message: 'What is the first name of the updated Manager?',
             name: 'managerfirstname'
@@ -281,66 +290,53 @@ const updateManager = async () => {
             type: 'input',
             message: 'What is the last name of the updated Manager?',
             name: 'managerlastname'
-        }
+        },
+
+        {
+            type: 'input',
+            message: 'Which Manager would you like to update?',
+            name: 'managerupdate'
+        },
+
     ]);
     await updateManagerToDB(employee);
     mainMenu();
 }
 
 // View ALL Employees
-const viewEmployeesInDB = async (role) => {
-    const result = await connection.promise().query("SELECT * FROM employees set ?", employee);
-    console.log(result);
+const viewEmployees = async () => {
+    const result = await connection.promise().query("SELECT first_name, last_name FROM employees");
+    console.table(JSON.parse(JSON.stringify(result[0])));
+    mainMenu();
 }
 
-const viewEmployees = async () => {
-    const employee = await inquirer.prompt([{
-        type: 'confirm',
-        message: 'Are you sure you want to view ALL Employees?',
-        name: 'confirmviewemployees'
-    }]);
-    await viewEmployeesInDB(employee);
+// View ALL Departments
+const viewDepartments = async () => {
+    const result = await connection.promise().query("SELECT * FROM departments");
+    console.table(JSON.parse(JSON.stringify(result[0])));
     mainMenu();
 }
 
 // View Employees by Department
-const viewEmployeesByDept = async (employee) => {
-    const result = await connection.promise().query("SELECT * FROM employees set ?", employee.department);
-    console.log(result);
-}
-
 const viewByDepartment = async () => {
-    const employee = await inquirer.prompt([{
-        type: 'confirm',
-        message: 'Are you sure you want to view Employees by Department?',
-        name: 'confirmviewemployeesbydept'
-    }]);
-    await viewEmployeesByDept(employee);
+    const result = await connection.promise().query("SELECT first_name, last_name FROM employees WHERE department = department[0]");
+    console.table(JSON.parse(JSON.stringify(result[0])));
     mainMenu();
 }
 
 // View Employees by Manager
-const viewEmployeesByMgr = async (employee) => {
-    const result = await connection.promise().query("SELECT * FROM employees set ?", employee.manager);
-    console.log(result);
-}
-
 const viewByManager = async () => {
-    const employee = await inquirer.prompt([{
-        type: 'confirm',
-        message: 'Are you sure you want to view Employees by Department?',
-        name: 'confirmviewemployeesbydept'
-    }]);
-    await viewEmployeesByMgr(employee);
+    const result = await connection.promise().query("SELECT first_name, last_name FROM is_manager=true ?", employee);
+    console.table(JSON.parse(JSON.stringify(result[0])));
     mainMenu();
 }
 
 // Initialize interface
 const init = async () => {
     try {
-        console.log('\n', "----------------------------------------", '\n');
-        console.log('\n', "       Welcome to Employee Tracker!     ", '\n');
-        console.log('\n', "----------------------------------------", '\n');
+        console.log('\n', "------------------------------------------", '\n');
+        console.log('\n', "   *** Welcome to Employee Tracker! ***   ", '\n');
+        console.log('\n', "------------------------------------------", '\n');
 
         mainMenu();
 
