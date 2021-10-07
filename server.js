@@ -69,14 +69,14 @@ const mainMenu = async () => {
                 name: 'View ALL Departments',
                 value: 'VIEW_DEPARTMENTS'
             },
-            {
-                name: 'View Employees by Department',
-                value: 'VIEW_BYDEPT'
-            },
-            {
-                name: 'View Employees by Manager',
-                value: 'VIEW_BYMGR'
-            },
+            // {
+            //     name: 'View Employees by Department',
+            //     value: 'VIEW_BYDEPT'
+            // },
+            // {
+            //     name: 'View Employees by Manager',
+            //     value: 'VIEW_BYMGR'
+            // },
             {
                 name: 'Exit',
                 value: 'EXIT'
@@ -124,14 +124,14 @@ const mainMenu = async () => {
             await viewDepartments();
             break;
         }
-        case 'VIEW_BYDEPT': {
-            await viewByDepartment();
-            break;
-        }
-        case 'VIEW_BYMGR': {
-            await viewByManager();
-            break;
-        }
+        // case 'VIEW_BYDEPT': {
+        //     await viewByDepartment();
+        //     break;
+        // }
+        // case 'VIEW_BYMGR': {
+        //     await viewByManager();
+        //     break;
+        // }
         default: {
             process.exit();
         }
@@ -259,14 +259,12 @@ const updateRoleToDB = async (employee_id, role_id) => {
 
 const updateRole = async () => {
     const employeeResult = await connection.promise().query("SELECT first_name, last_name, id FROM employees ");
-    console.log(employeeResult);
     const employeeOptions = employeeResult[0].map(employee => ({
         name: employee.first_name + ' ' + employee.last_name,
         value: employee.id
     }));
 
     const roleResult = await connection.promise().query("SELECT role_title, id FROM roles ");
-    console.log(roleResult);
     const roleOptions = roleResult[0].map(role => ({
         name: role.role_title,
         value: role.id
