@@ -42,12 +42,12 @@ npm start
 - Add a Department
 - Add a Role
 - Add an Employee
+- Remove an Employee
 - Update an Employee role
 - Update a Manager
 - View ALL Employees
 - View all Departments
 - View Employees by Department
-- Remove an Employee
 - Exit
 2. When the user chooses one of these options, they are presented with a number of questions relating to that option.
 3. When these questions are answered, the data is added to the database and the user is presented with the original list of task options again.

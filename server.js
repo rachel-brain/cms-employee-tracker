@@ -30,7 +30,7 @@ const mainMenu = async () => {
     const {
         selection
     } = await inquirer.prompt([{
-        type: 'checkbox',
+        type: 'list',
         message: 'What would you like to do?',
         name: 'selection',
         choices: [{
@@ -54,12 +54,16 @@ const mainMenu = async () => {
                 value: 'UPDATE_ROLE'
             },
             {
-                name: 'Update a Manager',
-                value: 'UPDATE_MANAGER'
+                name: 'Remove a Department',
+                value: 'REMOVE_DEPARTMENT'
             },
             {
                 name: 'View ALL Employees',
                 value: 'VIEW_EMPLOYEES'
+            },
+            {
+                name: 'View ALL Roles',
+                value: 'VIEW_ROLES'
             },
             {
                 name: 'View ALL Departments',
@@ -80,10 +84,10 @@ const mainMenu = async () => {
         ]
     }]);
 
-    console.log(selection[0]);
+    console.log(selection);
 
     // Switch to set of questions relevant to the answer of the selection by the user
-    switch (selection[0]) {
+    switch (selection) {
         case 'ADD_DEPT': {
             await addDepartment();
             break;
@@ -104,12 +108,16 @@ const mainMenu = async () => {
             await updateRole();
             break;
         }
-        case 'UPDATE_MANAGER': {
-            await updateManager();
+        case 'REMOVE_DEPARTMENT': {
+            await removeDepartment();
             break;
         }
         case 'VIEW_EMPLOYEES': {
             await viewEmployees();
+            break;
+        }
+        case 'VIEW_ROLES': {
+            await viewRoles();
             break;
         }
         case 'VIEW_DEPARTMENTS': {
@@ -134,7 +142,6 @@ const mainMenu = async () => {
 // Add Department
 const addDepartmentToDB = async (department) => {
     const result = await connection.promise().query("INSERT INTO departments set ?", department);
-    console.log(department);
 }
 
 const addDepartment = async () => {
@@ -143,13 +150,13 @@ const addDepartment = async () => {
         message: 'What is the name of the Department?',
         name: 'department_name'
     }]);
+
     await addDepartmentToDB(department);
     mainMenu();
 }
 
 // Add Role
 const addRoleToDB = async (role) => {
-    console.log(role);
     const result = await connection.promise().query("INSERT INTO roles set ?", role);
 }
 
@@ -159,9 +166,8 @@ const addRole = async () => {
         name: department.department_name,
         value: department.id
     }));
-    // remove some of these tests departments!
-    console.table(departmentOptions);
 
+    console.table(departmentOptions);
     const role = await inquirer.prompt([{
             type: 'input',
             message: 'What is the name of the role?',
@@ -192,7 +198,6 @@ const addRole = async () => {
 // Add Employee
 const addEmployeeToDB = async (employee) => {
     const result = await connection.promise().query("INSERT INTO employees set ?", employee);
-    console.log(employee);
 }
 
 const addEmployee = async () => {
@@ -205,42 +210,36 @@ const addEmployee = async () => {
             type: 'input',
             message: 'What is the last name of the Employee?',
             name: 'last_name'
-        },
+        }
         // {
         //     type: 'input',
         //     message: 'What is the role of the Employee?',
         //     name: 'role_title'
-        // },
-        // {
-        //     type: 'input',
-        //     message: 'Who does this Employee report to?',
-        //     name: 'employeemanager'
         // }
     ]);
+
     await addEmployeeToDB(employee);
     mainMenu();
 }
 
 // Remove Employee
-const removeEmployeefromDB = async (employee_id) => {
-    // const employees = await connection.promise().query("DELETE FROM employees WHERE employee_id ?", employee_id);
-
-    const employeeOptions = employees[0].map(employee => ({
-        name: employee.first_name + ' ' + employee.last_name,
-        value: employee.id
-    }));
-
-    // console.log(employeeOptions);
-    // console.table(employeeOptions);
-    // console.log(employee_id + "has been deleted");
+const removeEmployeefromDB = async (employeeId) => {
+    const result = await connection.promise().query("DELETE FROM employees WHERE id = ?", employeeId);
+    console.log(employeeId + " has been deleted");
 }
 
 const removeEmployee = async () => {
+    const result = await connection.promise().query("SELECT first_name, last_name, id FROM employees ");
+    const employeeOptions = result[0].map(employee => ({
+        name: employee.first_name + ' ' + employee.last_name,
+        value: employee.id
+    }));
     console.table(employeeOptions);
-    const employee_id = await inquirer.prompt([{
-            type: 'input',
+    const answers = await inquirer.prompt([{
+            type: 'list',
             message: 'Which Employee would you like to remove?',
-            name: 'remove'
+            name: 'employeeId',
+            choices: employeeOptions
         },
         {
             type: 'confirm',
@@ -248,64 +247,90 @@ const removeEmployee = async () => {
             name: 'confirmremoval'
         }
     ]);
-    await removeEmployeefromDB(employee_id);
+
+    await removeEmployeefromDB(answers.employeeId);
     mainMenu();
 }
 
 // Update Role
-const updateRoleToDB = async (role) => {
-    const result = await connection.promise().query("UPDATE INTO roles set ?", role);
-    console.log(result);
+const updateRoleToDB = async (employee_id, role_id) => {
+    const result = await connection.promise().query("UPDATE employees set role_id = ? WHERE id = ?", [role_id, employee_id]);
 }
 
 const updateRole = async () => {
-    const role = await inquirer.prompt([{
-            type: 'input',
+    const employeeResult = await connection.promise().query("SELECT first_name, last_name, id FROM employees ");
+    console.log(employeeResult);
+    const employeeOptions = employeeResult[0].map(employee => ({
+        name: employee.first_name + ' ' + employee.last_name,
+        value: employee.id
+    }));
+
+    const roleResult = await connection.promise().query("SELECT role_title, id FROM roles ");
+    console.log(roleResult);
+    const roleOptions = roleResult[0].map(role => ({
+        name: role.role_title,
+        value: role.id
+    }));
+
+    const answers = await inquirer.prompt([{
+            type: 'list',
             message: 'Which Employee would you like to update?',
-            name: 'employeeupdate'
+            name: 'employeeupdate',
+            choices: employeeOptions
         },
         {
-            type: 'input',
+            type: 'list',
             message: 'What is the updated role of this Employee?',
-            name: 'roleupdate'
+            name: 'roleupdate',
+            choices: roleOptions
         }
     ]);
-    await updateRoleToDB(role);
+
+    await updateRoleToDB(answers.employeeupdate, answers.roleupdate);
     mainMenu();
 }
 
-// Update Manager
-const updateManagerToDB = async (employee) => {
-    const result = await connection.promise().query("UPDATE * INTO employees set ?", employee);
-    console.log(result);
+// Remove a Department
+const removeDepartmentfromDB = async (departmentId) => {
+    const result = await connection.promise().query("DELETE FROM departments WHERE id = ?", departmentId);
+    console.log(departmentId + " has been deleted");
 }
 
-const updateManager = async () => {
-    const employee = await inquirer.prompt([{
-            type: 'input',
-            message: 'What is the first name of the updated Manager?',
-            name: 'managerfirstname'
+const removeDepartment = async () => {
+    const deptResult = await connection.promise().query("SELECT * FROM departments");
+    const departmentOptions = deptResult[0].map(department => ({
+        name: department.department_name,
+        value: department.id
+    }));
+
+    console.table(departmentOptions);
+    const answers = await inquirer.prompt([{
+            type: 'list',
+            message: 'Which Department would you like to remove?',
+            name: 'departmentId',
+            choices: departmentOptions
         },
         {
-            type: 'input',
-            message: 'What is the last name of the updated Manager?',
-            name: 'managerlastname'
-        },
-
-        {
-            type: 'input',
-            message: 'Which Manager would you like to update?',
-            name: 'managerupdate'
-        },
-
+            type: 'confirm',
+            message: 'Are you sure you want to remove this Department?',
+            name: 'confirmremoval'
+        }
     ]);
-    await updateManagerToDB(employee);
+
+    await removeDepartmentfromDB(answers.departmentId);
     mainMenu();
 }
 
 // View ALL Employees
 const viewEmployees = async () => {
-    const result = await connection.promise().query("SELECT first_name, last_name FROM employees");
+    const result = await connection.promise().query("SELECT employees.id, first_name, last_name, role_title FROM employees LEFT JOIN roles ON employees.role_id = roles.id ORDER BY employees.last_name");
+    console.table(JSON.parse(JSON.stringify(result[0])));
+    mainMenu();
+}
+
+// View ALL Roles
+const viewRoles = async () => {
+    const result = await connection.promise().query("SELECT roles.id, role_title, role_salary, department_name FROM roles LEFT JOIN departments ON roles.department_id = departments.id;");
     console.table(JSON.parse(JSON.stringify(result[0])));
     mainMenu();
 }
@@ -317,19 +342,21 @@ const viewDepartments = async () => {
     mainMenu();
 }
 
+// TODO:
 // View Employees by Department
-const viewByDepartment = async () => {
-    const result = await connection.promise().query("SELECT first_name, last_name FROM employees WHERE department = department[0]");
-    console.table(JSON.parse(JSON.stringify(result[0])));
-    mainMenu();
-}
+// const viewByDepartment = async () => {
+//     const result = await connection.promise().query("SELECT first_name, last_name FROM employees WHERE department = department[0]");
+//     console.table(JSON.parse(JSON.stringify(result[0])));
+//     mainMenu();
+// }
 
+// TODO:
 // View Employees by Manager
-const viewByManager = async () => {
-    const result = await connection.promise().query("SELECT first_name, last_name FROM is_manager=true ?", employee);
-    console.table(JSON.parse(JSON.stringify(result[0])));
-    mainMenu();
-}
+// const viewByManager = async (employeeId) => {
+//     const result = await connection.promise().query("SELECT first_name, last_name FROM employees WHERE is_manager = true ?", employeeId);
+//     console.table(JSON.parse(JSON.stringify(result[0])));
+//     mainMenu();
+// }
 
 // Initialize interface
 const init = async () => {
